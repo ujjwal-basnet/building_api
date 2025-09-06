@@ -1,9 +1,11 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from fastapi import Depends, FastAPI, HTTPException 
 from sqlalchemy.orm import Session ## session will be used when program class curd 
 from datetime import date 
-
-import  crud, schemas 
+from app import crud, schemas 
 from database import SessionLocal ## retrives the shared SessionLocal to connect to SQLIte data base
 
 
@@ -20,7 +22,7 @@ def get_db():
     
 @app.get("/")
 async def root():
-    return {"message": "Api health check sucessfull"}
+    return {"message": "API health check successful"}
 
 @app.get("/v0/players" , response_model= list[schemas.Player])
 def read_players(skip:int=0,
@@ -37,7 +39,7 @@ def read_players(skip:int=0,
                               last_name= last_name )
     return players 
 
-@app.get("/v0/players/{player_id", response_model=schemas.Player)
+@app.get("/v0/players/{player_id}", response_model=schemas.Player)
 def read_player(player_id:int, 
                 db:Session= Depends(get_db)):
     player= crud.get_player(db, player_id= player_id)
@@ -59,9 +61,9 @@ def read_performance(skip: int = 0 ,
                                         min_last_changed_date= minimum_last_changed_date)
     return performances
 
-@app.get("v0/leagues/{league_id}", response_model=schemas.League)
-def read_league(leageu_id: int, db:Session= Depends(get_db)):
-    league= crud.get_league(db, league_id= leageu_id)
+@app.get("/v0/leagues/{league_id}/", response_model=schemas.League)
+def read_league(league_id: int, db:Session= Depends(get_db)):
+    league= crud.get_league(db, league_id= league_id)
 
     if league is None:
         raise HTTPException(status_code= 404, detail= "league not found")
