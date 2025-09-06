@@ -127,7 +127,7 @@ def get_team_count(db:Session):
     return query.count()
 
 def get_league_count(db:Session):
-    query= db.query(models)
+    query= db.query(models.League)
     return query.count() 
 
 
