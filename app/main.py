@@ -8,8 +8,33 @@ from datetime import date
 from app import crud, schemas 
 from database import SessionLocal ## retrives the shared SessionLocal to connect to SQLIte data base
 
+api_description = """
+                        This API provides read-only access to info from the SportsWorldCentral
+                        (SWC) Fantasy Football API.
+                        The endpoints are grouped into the following categories:
+                        ## Analytics
+                        Get information about the health of the API and counts of leagues, teams,
+                        and players.
+                        ## Player
+                        You can get a list of NFL players, or search for an individual player by
+                        player_id.
+                        ## Scoring
+                        You can get a list of NFL player performances, including the fantasy points
+                        they scored using SWC league scoring.
+                        ## Membership
+                        Get information about all the SWC fantasy football leagues and the teams in
+                        them.
+"""
 
-app=FastAPI()
+
+
+
+## fastapi contstruction with additional detials added for openAI specification
+app=FastAPI(
+    description= api_description, 
+    title= "SportsWordCenter (SWC) Fantasy football API ",
+    version= "0.1"
+)
 
 #dependency 
 def get_db():
@@ -109,4 +134,6 @@ def get_count(db: Session = Depends(get_db)):
         team_count=crud.get_team_count(db),
         player_count=crud.get_player_count(db),
     )
-    return counts
+    return counts 
+
+
