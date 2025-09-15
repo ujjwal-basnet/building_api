@@ -2,9 +2,10 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from fastapi import Depends, FastAPI, HTTPException 
+from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlalchemy.orm import Session ## session will be used when program class curd 
 from datetime import date 
+from typing import Optional
 from app import crud, schemas 
 from database import SessionLocal ## retrives the shared SessionLocal to connect to SQLIte data base
 
@@ -79,15 +80,15 @@ async def root():
          response_model=list[schemas.Player],
          summary="Get a list of NFL players",
          description="""Retrieve players with optional filters such as first name, last name, 
-         or last_changed_date. Supports pagination with skip/limit.""",
+         or last_changed_date.""",
          response_description="List of NFL player records",
          operation_id="get_players",
          tags=["Player"])
-def read_players(skip: int = 0,
-                 limit: int = 100,
-                 minimum_last_changed_date: date = None,
-                 first_name: str = None,
-                 last_name: str = None,
+def read_players(skip: int = Query(0,   description= "The number of items to skip at the begining fo API call"),
+                 limit: int = Query(100,  description= "The numbers of records to reutnr after skipped records"),
+                 minimum_last_changed_date: date = Query(None, description= "Minimum date of changed that you want to records"),
+                first_name: str = Query(None , description= "First name of the player you want to search"),
+                 last_name: str = Query(None , description=""),
                  db: Session = Depends(get_db)):
     players = crud.get_players(db,
                                skip=skip,
@@ -106,6 +107,7 @@ def read_players(skip: int = 0,
          response_description="One NFL player record",
          operation_id="get_player_by_id",
          tags=["Player"])
+
 def read_player(player_id: int, db: Session = Depends(get_db)):
     player = crud.get_player(db, player_id=player_id)
     if player is None:
@@ -121,10 +123,13 @@ def read_player(player_id: int, db: Session = Depends(get_db)):
          response_description="List of NFL player performance records",
          operation_id="get_performances",
          tags=["Scoring"])
-def read_performance(skip: int = 0,
-                     limit: int = 100,
-                     minimum_last_changed_date: date = None,
-                     db: Session = Depends(get_db)):
+def read_performance(
+        skip: int = Query(0, description="Number of records to skip"),
+        limit: int = Query(100, description="Maximum number of records to return"),
+        minimum_last_changed_date: Optional[date] = Query(None, description="Filter records updated on or after this date"),
+        db: Session = Depends(get_db)
+    ):
+        
     performances = crud.get_performances(db,
                                          skip=skip,
                                          limit=limit,
@@ -154,11 +159,17 @@ def read_league(league_id: int, db: Session = Depends(get_db)):
          response_description="List of NFL league records",
          operation_id="get_leagues",
          tags=["Membership"])
-def read_leagues(skip: int = 0,
-                 limit: int = 100,
-                 minimum_last_changed_data=None,
-                 league_name: str = None,
-                 db: Session = Depends(get_db)):
+
+def read_leagues(
+    skip: int = Query(0, description="Number of records to skip"),
+    limit: int = Query(100, description="Maximum number of records to return"),
+    minimum_last_changed_data = Query(None, description="Filter records updated on or after this date"),
+    league_name: str= Query(None, description="Filter leagues by name"),
+    db: Session = Depends(get_db)
+):
+
+
+
     leagues = crud.get_leagues(db,
                                skip=skip,
                                limit=limit,
@@ -175,12 +186,17 @@ def read_leagues(skip: int = 0,
          response_description="List of NFL team records",
          operation_id="get_teams",
          tags=["Membership"])
-def read_teams(skip: int = 0,
-               limit: int = 100,
-               minimum_last_changed_date: date = None,
-               team_name: str = None,
-               league_id: int = None,
-               db: Session = Depends(get_db)):
+
+def read_teams(
+    skip: int = Query(0, description="Number of records to skip"),
+    limit: int = Query(100, description="Maximum number of records to return"),
+    minimum_last_changed_date: Optional[date] = Query(None, description="Filter records updated on or after this date"),
+    team_name: str = Query(None, description="Filter teams by name"),
+    league_id: int = Query(None, description="Filter teams by league ID"),
+    db: Session = Depends(get_db)
+):
+    
+
     teams = crud.get_teams(db,
                            skip=skip,
                            limit=limit,
